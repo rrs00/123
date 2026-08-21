@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>운동을 기록하는 방법 — 중학교 과학</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="styles.css">
+<script src="ds-bundle.js"></script>
+<style>
+  body{margin:0;background:var(--color-bg);color:var(--color-text);font-family:var(--font-body)}
+  a{color:var(--color-accent)}
+  a:hover{color:var(--color-accent-700)}
+  svg text{display:inline}
+  input[type=range].mv-dt{accent-color:var(--color-accent-2)}
+  input[type=range].mv-v0{accent-color:var(--color-accent)}
+  @keyframes mv-bob{0%,100%{translate:0 0}50%{translate:0 -2px}}
+  @keyframes mv-flash{0%{opacity:.85;transform:scale(.4)}100%{opacity:0;transform:scale(1.6)}}
+</style>
+</helmet>
+<div style="min-height:100vh;background:var(--color-bg)">
+
+  <!-- masthead -->
+  <header style="max-width:1080px;margin:0 auto;padding:26px 24px 6px">
+    <div style="display:flex;align-items:baseline;gap:14px;flex-wrap:wrap">
+      <h1 style="font-family:var(--font-heading);font-weight:600;font-size:clamp(30px,5vw,46px);letter-spacing:-0.02em;margin:0;line-height:1.05">운동을 기록하는 방법</h1>
+      <span style="font-size:15px;color:color-mix(in srgb,var(--color-text) 60%,transparent)">중학교 과학 · 연속 사진으로 운동 기록하기</span>
+    </div>
+  </header>
+
+  <!-- tab bar -->
+  <nav style="max-width:1080px;margin:0 auto;padding:14px 24px 0;position:sticky;top:0;z-index:20;background:var(--color-bg)">
+    <div style="display:flex;gap:10px;flex-wrap:wrap">
+      <button type="button" onClick="{{ selectTab1 }}" style="{{ tab1Style }}">① 연속 사진 관찰</button>
+      <button type="button" onClick="{{ selectTab2 }}" style="{{ tab2Style }}">② 속력 계산</button>
+      <button type="button" onClick="{{ selectTab3 }}" style="{{ tab3Style }}">③ 단위 변환</button>
+    </div>
+    <div style="height:2px;background:var(--color-divider);margin-top:14px"></div>
+  </nav>
+
+  <main style="max-width:1080px;margin:0 auto;padding:24px 24px 72px">
+
+    <!-- ═══════════ TAB ① 연속 사진 관찰 ═══════════ -->
+    <sc-if value="{{ isTab1 }}" hint-placeholder-val="{{ true }}">
+    <section>
+      <p style="font-size:16px;line-height:1.6;margin:0 0 22px;color:color-mix(in srgb,var(--color-text) 82%,transparent)">자동차가 출발점에서 달리는 동안 <strong>일정한 시간 간격(Δt)마다 위치를 사진으로 기록</strong>합니다. <strong>▶ 기록 재생</strong>을 눌러 사진이 찍히는 과정을 관찰해 보세요. 사진 사이 <strong>간격이 넓으면 빠른 운동</strong>, <strong>좁으면 느린 운동</strong>입니다.</p>
+
+      <!-- track + ruler -->
+      <div style="background:var(--color-surface);border:1px solid var(--color-divider);border-radius:12px;padding:26px 22px 18px;box-shadow:var(--shadow-sm)">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;gap:12px;flex-wrap:wrap">
+          <span style="font-family:var(--font-heading);font-weight:600;font-size:15px">📏 자를 붙인 트랙 (m)</span>
+          <span style="font-size:13px;color:color-mix(in srgb,var(--color-text) 60%,transparent)">Δt = {{ dtLabel }}초 · 속력 {{ v0Label }} m/s</span>
+        </div>
+
+        <!-- stage -->
+        <div style="position:relative;height:176px;margin:0 8px">
+          <!-- ruler ticks -->
+          <div style="position:absolute;left:0;right:0;top:8px;height:36px">
+            <sc-for list="{{ ticks }}" as="t" hint-placeholder-count="7">
+              <div style="{{ t.wrapStyle }}">
+                <div style="{{ t.tickStyle }}"></div>
+                <div style="{{ t.labelStyle }}">{{ t.label }}</div>
+              </div>
+            </sc-for>
+          </div>
+          <div style="position:absolute;left:0;right:0;top:8px;height:2px;background:color-mix(in srgb,var(--color-text) 45%,transparent)"></div>
+
+          <!-- road -->
+          <div style="position:absolute;left:0;right:0;bottom:0;height:58px;background:var(--color-neutral-800);border-radius:8px"></div>
+          <div style="position:absolute;left:0;right:0;bottom:28px;height:0;border-top:3px dashed var(--color-process-yellow);opacity:.85"></div>
+
+          <!-- recorded snapshots (ghosts) -->
+          <sc-for list="{{ frames }}" as="f" hint-placeholder-count="6">
+            <div style="{{ f.style }}">
+              <div style="font-size:11px;font-family:var(--font-heading);font-weight:600;text-align:center;color:var(--color-accent-2-700);margin-bottom:2px">{{ f.label }}</div>
+              <svg viewBox="0 0 88 44" width="60" height="30" style="display:block">
+                <rect x="4" y="20" width="80" height="16" rx="8" fill="currentColor"></rect>
+                <path d="M18 20 L28 8 L60 8 L70 20 Z" fill="currentColor"></path>
+                <rect x="31" y="11" width="24" height="9" rx="2" fill="var(--color-bg)"></rect>
+                <circle cx="26" cy="37" r="7" fill="#201e1d"></circle>
+                <circle cx="64" cy="37" r="7" fill="#201e1d"></circle>
+                <circle cx="26" cy="37" r="2.6" fill="var(--color-bg)"></circle>
+                <circle cx="64" cy="37" r="2.6" fill="var(--color-bg)"></circle>
+              </svg>
+            </div>
+          </sc-for>
+
+          <!-- live moving car -->
+          <div style="{{ liveStyle }}">
+            <svg viewBox="0 0 88 44" width="66" height="33" style="display:block;animation:mv-bob .5s ease-in-out infinite">
+              <rect x="4" y="20" width="80" height="16" rx="8" fill="var(--color-accent-2)"></rect>
+              <path d="M18 20 L28 8 L60 8 L70 20 Z" fill="var(--color-accent-2)"></path>
+              <rect x="31" y="11" width="24" height="9" rx="2" fill="var(--color-bg)"></rect>
+              <circle cx="26" cy="37" r="7.5" fill="#201e1d"></circle>
+              <circle cx="64" cy="37" r="7.5" fill="#201e1d"></circle>
+              <circle cx="26" cy="37" r="2.8" fill="var(--color-bg)"></circle>
+              <circle cx="64" cy="37" r="2.8" fill="var(--color-bg)"></circle>
+            </svg>
+          </div>
+        </div>
+
+        <!-- play bar -->
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-top:14px;padding-top:14px;border-top:1px solid var(--color-divider)">
+          <button type="button" onClick="{{ onPlay }}" disabled="{{ playing }}" class="btn btn-primary" style="font-size:16px;padding:11px 22px;border-radius:9px">{{ playLabel }}</button>
+          <div style="display:flex;gap:20px;font-size:14px;font-variant-numeric:tabular-nums;color:color-mix(in srgb,var(--color-text) 70%,transparent)">
+            <span>⏱ 경과 <strong style="color:var(--color-text)">{{ simLabel }}</strong>초</span>
+            <span>📸 기록 <strong style="color:var(--color-accent-2-700)">{{ revealed }}</strong> / {{ total }}장</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- controls -->
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:24px;margin-top:24px">
+
+        <!-- motion type -->
+        <div>
+          <div style="font-family:var(--font-heading);font-weight:600;font-size:16px;margin-bottom:12px">운동의 종류</div>
+          <div style="display:flex;flex-direction:column;gap:10px">
+            <button type="button" onClick="{{ setUniform }}" style="{{ mUniformStyle }}"><strong>등속 운동</strong><span style="opacity:.72;font-weight:400"> · 간격이 일정</span></button>
+            <button type="button" onClick="{{ setAccel }}" style="{{ mAccelStyle }}"><strong>점점 빨라지는 운동</strong><span style="opacity:.72;font-weight:400"> · 간격이 넓어짐</span></button>
+            <button type="button" onClick="{{ setDecel }}" style="{{ mDecelStyle }}"><strong>점점 느려지는 운동</strong><span style="opacity:.72;font-weight:400"> · 간격이 좁아짐</span></button>
+          </div>
+        </div>
+
+        <!-- interval slider -->
+        <div>
+          <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px">
+            <span style="font-family:var(--font-heading);font-weight:600;font-size:16px">시간 간격 (Δt)</span>
+            <span style="font-family:var(--font-heading);font-weight:600;font-size:24px;color:var(--color-accent-2-700)">{{ dtLabel }}<span style="font-size:15px;color:color-mix(in srgb,var(--color-text) 60%,transparent)"> 초</span></span>
+          </div>
+          <input class="mv-dt" type="range" min="0.1" max="1.0" step="0.1" value="{{ dt }}" onInput="{{ onDt }}" style="width:100%;height:28px;cursor:pointer">
+          <div style="display:flex;justify-content:space-between;font-size:12px;color:color-mix(in srgb,var(--color-text) 55%,transparent);margin-top:2px">
+            <span>0.1초 · 자주 찍기</span><span>1.0초 · 가끔 찍기</span>
+          </div>
+          <div style="margin-top:14px;padding:12px 14px;background:var(--color-accent-2-100);border-radius:10px">
+            <span style="font-size:13.5px;line-height:1.5">{{ dtNote }}</span>
+          </div>
+        </div>
+
+        <!-- speed slider -->
+        <div>
+          <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px">
+            <span style="font-family:var(--font-heading);font-weight:600;font-size:16px">자동차 속력</span>
+            <span style="font-family:var(--font-heading);font-weight:600;font-size:24px;color:var(--color-accent-700)">{{ v0Label }}<span style="font-size:15px;color:color-mix(in srgb,var(--color-text) 60%,transparent)"> m/s</span></span>
+          </div>
+          <input class="mv-v0" type="range" min="1.5" max="5.0" step="0.1" value="{{ v0 }}" onInput="{{ onV0 }}" style="width:100%;height:28px;cursor:pointer">
+          <div style="display:flex;justify-content:space-between;font-size:12px;color:color-mix(in srgb,var(--color-text) 55%,transparent);margin-top:2px">
+            <span>느리게</span><span>빠르게</span>
+          </div>
+          <div style="margin-top:14px;padding:12px 14px;background:var(--color-accent-100);border-radius:10px">
+            <span style="font-size:13.5px;line-height:1.5">{{ v0Note }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- auto analysis -->
+      <div style="margin-top:24px;padding:20px 22px;border-left:4px solid var(--color-accent-2);background:var(--color-accent-2-100);border-radius:0 10px 10px 0">
+        <div style="font-family:var(--font-heading);font-weight:600;font-size:18px;margin-bottom:6px">{{ analysisTitle }}</div>
+        <p style="margin:0;font-size:15px;line-height:1.6;color:color-mix(in srgb,var(--color-text) 85%,transparent)">{{ analysisText }}</p>
+      </div>
+    </section>
+    </sc-if>
+
+    <!-- ═══════════ TAB ② 속력 계산 ═══════════ -->
+    <sc-if value="{{ isTab2 }}" hint-placeholder-val="{{ true }}">
+    <section>
+      <p style="font-size:16px;line-height:1.6;margin:0 0 16px;color:color-mix(in srgb,var(--color-text) 82%,transparent)">①탭에서 기록한 연속 사진이에요. 사진 흔적 사이의 <strong>이동 거리</strong>와 <strong>시간 간격</strong>을 보고 각 구간의 <strong>속력</strong>을 직접 계산해 보세요. <span style="color:var(--color-accent-700);font-weight:600">속력 = 이동 거리 ÷ 시간</span></p>
+
+      <div style="display:flex;flex-wrap:wrap;gap:8px 16px;align-items:center;font-size:14px;margin-bottom:16px">
+        <span class="tag tag-accent-2">{{ motionLabel }}</span>
+        <span style="color:color-mix(in srgb,var(--color-text) 72%,transparent)">Δt = <strong>{{ dtLabel }}</strong>초 · 속력 <strong>{{ v0Label }}</strong> m/s</span>
+        <span style="color:color-mix(in srgb,var(--color-text) 52%,transparent)">— 값은 <strong>①탭</strong>에서 바꿀 수 있어요</span>
+      </div>
+
+      <!-- recorded strip -->
+      <div style="background:var(--color-surface);border:1px solid var(--color-divider);border-radius:12px;padding:20px 22px 12px;box-shadow:var(--shadow-sm)">
+        <div style="font-family:var(--font-heading);font-weight:600;font-size:14px;margin-bottom:4px">📸 기록된 연속 사진</div>
+        <div style="position:relative;height:100px;margin:0 8px">
+          <div style="position:absolute;left:0;right:0;top:6px;height:34px">
+            <sc-for list="{{ ticks }}" as="t" hint-placeholder-count="7">
+              <div style="{{ t.wrapStyle }}"><div style="{{ t.tickStyle }}"></div><div style="{{ t.labelStyle }}">{{ t.label }}</div></div>
+            </sc-for>
+          </div>
+          <div style="position:absolute;left:0;right:0;top:6px;height:2px;background:color-mix(in srgb,var(--color-text) 45%,transparent)"></div>
+          <div style="position:absolute;left:0;right:0;bottom:0;height:44px;background:var(--color-neutral-800);border-radius:8px"></div>
+          <sc-for list="{{ strip }}" as="s" hint-placeholder-count="5">
+            <div style="{{ s.style }}">
+              <div style="font-size:11px;font-family:var(--font-heading);font-weight:600;text-align:center;color:var(--color-accent-2-700);margin-bottom:1px">{{ s.label }}</div>
+              <svg viewBox="0 0 88 44" width="46" height="23" style="display:block">
+                <rect x="4" y="20" width="80" height="16" rx="8" fill="currentColor"></rect>
+                <path d="M18 20 L28 8 L60 8 L70 20 Z" fill="currentColor"></path>
+                <rect x="31" y="11" width="24" height="9" rx="2" fill="var(--color-bg)"></rect>
+                <circle cx="26" cy="37" r="7" fill="#201e1d"></circle>
+                <circle cx="64" cy="37" r="7" fill="#201e1d"></circle>
+              </svg>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+
+      <!-- calculation table -->
+      <div style="overflow-x:auto;margin-top:22px">
+        <table class="table" style="min-width:560px">
+          <thead>
+            <tr>
+              <th>구간</th><th>이동 거리 (m)</th><th>시간 (s)</th><th>속력 v (m/s)</th><th style="text-align:center">채점</th>
+            </tr>
+          </thead>
+          <tbody>
+            <sc-for list="{{ intervals }}" as="iv" hint-placeholder-count="3">
+              <tr style="{{ iv.rowStyle }}">
+                <td style="font-family:var(--font-heading);font-weight:600;white-space:nowrap">{{ iv.rowLabel }}</td>
+                <td style="font-variant-numeric:tabular-nums">{{ iv.dLabel }}</td>
+                <td style="font-variant-numeric:tabular-nums">{{ iv.tLabel }}</td>
+                <td>
+                  <input class="input" type="text" inputmode="decimal" autocomplete="off" placeholder="숫자 입력" value="{{ iv.value }}" onInput="{{ iv.onInput }}" style="width:108px;font-variant-numeric:tabular-nums">
+                  <sc-if value="{{ iv.showSolution }}" hint-placeholder-val="{{ false }}">
+                    <div style="font-size:12.5px;color:var(--color-accent-2-700);margin-top:5px">✏️ {{ iv.solution }}</div>
+                  </sc-if>
+                </td>
+                <td style="{{ iv.markStyle }}">{{ iv.mark }}</td>
+              </tr>
+            </sc-for>
+          </tbody>
+        </table>
+      </div>
+
+      <sc-if value="{{ showTrunc }}" hint-placeholder-val="{{ false }}">
+        <p style="font-size:13px;color:color-mix(in srgb,var(--color-text) 60%,transparent);margin:10px 2px 0">구간이 많아 처음 {{ truncMax }}개만 표시했어요. ①탭에서 <strong>Δt를 키우면</strong> 구간 수가 줄어 계산하기 쉬워요.</p>
+      </sc-if>
+
+      <div style="display:flex;gap:12px;margin-top:20px;flex-wrap:wrap">
+        <button type="button" class="btn btn-primary" onClick="{{ onCheck }}" style="font-size:16px;padding:11px 24px;border-radius:9px;white-space:nowrap">정답 확인</button>
+        <button type="button" class="btn btn-secondary" onClick="{{ onReset }}" style="font-size:16px;padding:11px 24px;border-radius:9px;white-space:nowrap">다시 풀기</button>
+      </div>
+
+      <sc-if value="{{ checked }}" hint-placeholder-val="{{ false }}">
+        <div style="margin-top:24px">
+          <div style="font-family:var(--font-heading);font-weight:600;font-size:17px;margin-bottom:14px">채점 결과 · {{ scoreText }}</div>
+          <sc-if value="{{ commentTitle }}" hint-placeholder-val="{{ false }}">
+            <div style="padding:20px 22px;border-left:4px solid var(--color-accent-2);background:var(--color-accent-2-100);border-radius:0 10px 10px 0">
+              <div style="font-family:var(--font-heading);font-weight:600;font-size:18px;margin-bottom:6px">{{ commentTitle }}</div>
+              <p style="margin:0;font-size:15px;line-height:1.6;color:color-mix(in srgb,var(--color-text) 85%,transparent)">{{ commentText }}</p>
+            </div>
+          </sc-if>
+        </div>
+      </sc-if>
+
+      <!-- ── graphs ── -->
+      <div style="margin-top:44px">
+        <h3 style="font-family:var(--font-heading);font-weight:600;font-size:22px;margin:0 0 6px">그래프로 나타내기</h3>
+        <p style="font-size:15px;line-height:1.6;margin:0 0 20px;color:color-mix(in srgb,var(--color-text) 78%,transparent)">그래프의 <strong>모눈을 클릭</strong>하면 그 시간의 점이 찍혀요. 각 시간마다 점을 하나씩 찍어 그래프를 완성한 뒤 <strong>그래프 확인</strong>을 눌러 보세요.</p>
+
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:28px">
+
+          <!-- 시간-이동 거리 -->
+          <div>
+            <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;gap:10px">
+              <span style="font-family:var(--font-heading);font-weight:600;font-size:16px">시간 – 이동 거리</span>
+              <span style="font-size:13px;color:color-mix(in srgb,var(--color-text) 58%,transparent)">{{ gDist.progress }}</span>
+            </div>
+            <div style="position:relative;background:var(--color-surface);border-radius:10px">
+              <svg viewBox="{{ gDist.viewBox }}" style="width:100%;height:auto;display:block;cursor:crosshair;touch-action:manipulation" onClick="{{ onPlotDist }}">
+                <sc-for list="{{ gDist.yLines }}" as="g" hint-placeholder-count="5">
+                  <line x1="{{ g.x1 }}" y1="{{ g.y }}" x2="{{ g.x2 }}" y2="{{ g.y }}" stroke="{{ g.stroke }}" stroke-width="1"></line>
+                </sc-for>
+                <sc-for list="{{ gDist.xLabels }}" as="x" hint-placeholder-count="4">
+                  <line x1="{{ x.x }}" y1="{{ gDist.axisTop }}" x2="{{ x.x }}" y2="{{ gDist.axisY }}" stroke="{{ x.stroke }}" stroke-width="1"></line>
+                </sc-for>
+                <sc-for list="{{ gDist.slots }}" as="s" hint-placeholder-count="4">
+                  <line x1="{{ s.x }}" y1="{{ gDist.axisTop }}" x2="{{ s.x }}" y2="{{ gDist.axisY }}" stroke="var(--color-accent)" stroke-width="1" stroke-dasharray="3 4" opacity="0.28"></line>
+                </sc-for>
+                <line x1="{{ gDist.axisX1 }}" y1="{{ gDist.axisY }}" x2="{{ gDist.axisX2 }}" y2="{{ gDist.axisY }}" stroke="var(--color-text)" stroke-width="1.5"></line>
+                <line x1="{{ gDist.axisX1 }}" y1="{{ gDist.axisTop }}" x2="{{ gDist.axisX1 }}" y2="{{ gDist.axisY }}" stroke="var(--color-text)" stroke-width="1.5"></line>
+                <sc-if value="{{ gDist.showAnswer }}" hint-placeholder-val="{{ false }}">
+                  <polyline points="{{ gDist.answer }}" fill="none" stroke="var(--color-neutral-500)" stroke-width="2" stroke-dasharray="5 4"></polyline>
+                </sc-if>
+                <polyline points="{{ gDist.line }}" fill="none" stroke="{{ gDist.color }}" stroke-width="2.5"></polyline>
+                <sc-for list="{{ gDist.plotted }}" as="p" hint-placeholder-count="0">
+                  <circle cx="{{ p.cx }}" cy="{{ p.cy }}" r="{{ p.r }}" fill="{{ p.fill }}" opacity="{{ p.opacity }}"></circle>
+                </sc-for>
+                <rect x="{{ gDist.hitX }}" y="{{ gDist.hitY }}" width="{{ gDist.hitW }}" height="{{ gDist.hitH }}" fill="transparent"></rect>
+              </svg>
+              <sc-for list="{{ gDist.yLines }}" as="g" hint-placeholder-count="5">
+                <span style="{{ g.labelStyle }}">{{ g.label }}</span>
+              </sc-for>
+              <sc-for list="{{ gDist.xLabels }}" as="x" hint-placeholder-count="5">
+                <span style="{{ x.labelStyle }}">{{ x.label }}</span>
+              </sc-for>
+              <span style="{{ gDist.unitStyle }}">{{ gDist.unitLabel }}</span>
+              <span style="{{ gDist.xCapStyle }}">시간 (s)</span>
+            </div>
+            <sc-if value="{{ gchecked }}" hint-placeholder-val="{{ false }}">
+              <div style="margin-top:10px;padding:14px 16px;background:var(--color-accent-100);border-radius:10px">
+                <div style="font-family:var(--font-heading);font-weight:600;font-size:14px;margin-bottom:4px">{{ gDist.scoreText }}</div>
+                <div style="font-size:13.5px;line-height:1.55;color:color-mix(in srgb,var(--color-text) 82%,transparent)">{{ shapeDist }}</div>
+              </div>
+            </sc-if>
+          </div>
+
+          <!-- 시간-속력 -->
+          <div>
+            <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px;gap:10px">
+              <span style="font-family:var(--font-heading);font-weight:600;font-size:16px">시간 – 속력</span>
+              <span style="font-size:13px;color:color-mix(in srgb,var(--color-text) 58%,transparent)">{{ gSpd.progress }}</span>
+            </div>
+            <div style="position:relative;background:var(--color-surface);border-radius:10px">
+              <svg viewBox="{{ gSpd.viewBox }}" style="width:100%;height:auto;display:block;cursor:crosshair;touch-action:manipulation" onClick="{{ onPlotSpd }}">
+                <sc-for list="{{ gSpd.yLines }}" as="g" hint-placeholder-count="5">
+                  <line x1="{{ g.x1 }}" y1="{{ g.y }}" x2="{{ g.x2 }}" y2="{{ g.y }}" stroke="{{ g.stroke }}" stroke-width="1"></line>
+                </sc-for>
+                <sc-for list="{{ gSpd.xLabels }}" as="x" hint-placeholder-count="4">
+                  <line x1="{{ x.x }}" y1="{{ gSpd.axisTop }}" x2="{{ x.x }}" y2="{{ gSpd.axisY }}" stroke="{{ x.stroke }}" stroke-width="1"></line>
+                </sc-for>
+                <sc-for list="{{ gSpd.slots }}" as="s" hint-placeholder-count="3">
+                  <line x1="{{ s.x }}" y1="{{ gSpd.axisTop }}" x2="{{ s.x }}" y2="{{ gSpd.axisY }}" stroke="var(--color-accent-2)" stroke-width="1" stroke-dasharray="3 4" opacity="0.28"></line>
+                </sc-for>
+                <line x1="{{ gSpd.axisX1 }}" y1="{{ gSpd.axisY }}" x2="{{ gSpd.axisX2 }}" y2="{{ gSpd.axisY }}" stroke="var(--color-text)" stroke-width="1.5"></line>
+                <line x1="{{ gSpd.axisX1 }}" y1="{{ gSpd.axisTop }}" x2="{{ gSpd.axisX1 }}" y2="{{ gSpd.axisY }}" stroke="var(--color-text)" stroke-width="1.5"></line>
+                <sc-if value="{{ gSpd.showAnswer }}" hint-placeholder-val="{{ false }}">
+                  <polyline points="{{ gSpd.answer }}" fill="none" stroke="var(--color-neutral-500)" stroke-width="2" stroke-dasharray="5 4"></polyline>
+                </sc-if>
+                <polyline points="{{ gSpd.line }}" fill="none" stroke="{{ gSpd.color }}" stroke-width="2.5"></polyline>
+                <sc-for list="{{ gSpd.plotted }}" as="p" hint-placeholder-count="0">
+                  <circle cx="{{ p.cx }}" cy="{{ p.cy }}" r="{{ p.r }}" fill="{{ p.fill }}" opacity="{{ p.opacity }}"></circle>
+                </sc-for>
+                <rect x="{{ gSpd.hitX }}" y="{{ gSpd.hitY }}" width="{{ gSpd.hitW }}" height="{{ gSpd.hitH }}" fill="transparent"></rect>
+              </svg>
+              <sc-for list="{{ gSpd.yLines }}" as="g" hint-placeholder-count="5">
+                <span style="{{ g.labelStyle }}">{{ g.label }}</span>
+              </sc-for>
+              <sc-for list="{{ gSpd.xLabels }}" as="x" hint-placeholder-count="4">
+                <span style="{{ x.labelStyle }}">{{ x.label }}</span>
+              </sc-for>
+              <span style="{{ gSpd.unitStyle }}">{{ gSpd.unitLabel }}</span>
+              <span style="{{ gSpd.xCapStyle }}">시간 (s)</span>
+            </div>
+            <sc-if value="{{ gchecked }}" hint-placeholder-val="{{ false }}">
+              <div style="margin-top:10px;padding:14px 16px;background:var(--color-accent-2-100);border-radius:10px">
+                <div style="font-family:var(--font-heading);font-weight:600;font-size:14px;margin-bottom:4px">{{ gSpd.scoreText }}</div>
+                <div style="font-size:13.5px;line-height:1.55;color:color-mix(in srgb,var(--color-text) 82%,transparent)">{{ shapeSpd }}</div>
+              </div>
+            </sc-if>
+          </div>
+        </div>
+
+        <div style="display:flex;gap:12px;margin-top:22px;flex-wrap:wrap;align-items:center">
+          <button type="button" class="btn btn-primary" onClick="{{ onCheckGraph }}" style="font-size:16px;padding:11px 24px;border-radius:9px;white-space:nowrap">그래프 확인</button>
+          <button type="button" class="btn btn-secondary" onClick="{{ onClearGraph }}" style="font-size:16px;padding:11px 24px;border-radius:9px;white-space:nowrap">점 지우기</button>
+          <sc-if value="{{ gchecked }}" hint-placeholder-val="{{ false }}">
+            <span style="font-size:13.5px;color:color-mix(in srgb,var(--color-text) 62%,transparent)">회색 점선이 정답 그래프예요</span>
+          </sc-if>
+        </div>
+      </div>
+    </section>
+    </sc-if>
+
+    <!-- ═══════════ TAB ③ 단위 변환 ═══════════ -->
+    <sc-if value="{{ isTab3 }}" hint-placeholder-val="{{ true }}">
+    <section style="max-width:640px">
+      <p style="font-size:16px;line-height:1.6;margin:0 0 18px;color:color-mix(in srgb,var(--color-text) 82%,transparent)">속력의 단위 <strong>m/s</strong> 와 <strong>km/h</strong> 를 서로 바꾸는 연습이에요. 문제를 읽고 답을 <strong>숫자로 입력</strong>한 뒤 <strong>정답 확인</strong>을 눌러 보세요.</p>
+
+      <!-- formula helper (collapsible) -->
+      <details style="background:var(--color-surface);border:1px solid var(--color-divider);border-radius:10px;margin-bottom:22px">
+        <summary style="cursor:pointer;list-style:none;padding:13px 16px;font-family:var(--font-heading);font-weight:600;font-size:15px;display:flex;align-items:center;gap:8px">💡 변환 공식 도우미 <span style="font-weight:400;font-size:13px;color:color-mix(in srgb,var(--color-text) 55%,transparent)">(눌러서 펼치기)</span></summary>
+        <div style="padding:2px 16px 16px;display:flex;flex-direction:column;gap:10px">
+          <div style="display:flex;align-items:center;gap:10px;padding:11px 14px;background:var(--color-accent-100);border-radius:8px">
+            <span class="tag tag-accent">m/s → km/h</span>
+            <span style="font-family:var(--font-heading);font-weight:600;font-size:16px">× 3.6</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;padding:11px 14px;background:var(--color-accent-2-100);border-radius:8px">
+            <span class="tag tag-accent-2">km/h → m/s</span>
+            <span style="font-family:var(--font-heading);font-weight:600;font-size:16px">÷ 3.6</span>
+          </div>
+          <div style="font-size:13px;color:color-mix(in srgb,var(--color-text) 62%,transparent);line-height:1.55">1 km = 1000 m, 1 시간 = 3600 초 이므로 km/h 에 <strong>1000 ÷ 3600 = 1/3.6</strong> 을 곱하면 m/s 가 돼요.</div>
+        </div>
+      </details>
+
+      <sc-if value="{{ q3ready }}" hint-placeholder-val="{{ true }}">
+      <!-- question card -->
+      <div style="background:var(--color-surface);border:1px solid var(--color-divider);border-radius:12px;padding:26px 24px;box-shadow:var(--shadow-sm)">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:16px">
+          <span style="font-size:13px;letter-spacing:0.06em;text-transform:uppercase;color:color-mix(in srgb,var(--color-text) 55%,transparent)">단위 변환 문제</span>
+          <span style="font-size:14px;color:var(--color-accent-700)">{{ scoreText3 }}</span>
+        </div>
+        <div style="font-family:var(--font-heading);font-weight:600;font-size:26px;line-height:1.3;margin-bottom:20px">{{ q3Text }}</div>
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+          <input class="input" type="text" inputmode="decimal" autocomplete="off" placeholder="숫자 입력" value="{{ a3 }}" onInput="{{ onA3 }}" style="width:160px;font-size:18px;height:48px;font-variant-numeric:tabular-nums">
+          <span style="font-family:var(--font-heading);font-weight:600;font-size:18px">{{ q3UnitTo }}</span>
+        </div>
+        <div style="display:flex;gap:12px;margin-top:20px;flex-wrap:wrap">
+          <button type="button" class="btn btn-primary" onClick="{{ onCheck3 }}" style="font-size:16px;padding:11px 24px;border-radius:9px;white-space:nowrap">정답 확인</button>
+          <button type="button" class="btn btn-secondary" onClick="{{ onNext3 }}" style="font-size:16px;padding:11px 24px;border-radius:9px;white-space:nowrap">다음 문제 →</button>
+        </div>
+      </div>
+
+      <sc-if value="{{ checked3 }}" hint-placeholder-val="{{ false }}">
+        <div style="margin-top:18px;display:flex;flex-direction:column;gap:14px">
+          <div style="{{ q3BannerStyle }}">{{ q3BannerText }}</div>
+          <div style="padding:18px 20px;border-left:4px solid var(--color-accent);background:var(--color-accent-100);border-radius:0 10px 10px 0">
+            <div style="font-family:var(--font-heading);font-weight:600;font-size:16px;margin-bottom:10px">🧾 풀이 과정</div>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <sc-for list="{{ q3Steps }}" as="st" hint-placeholder-count="2">
+                <div style="font-size:15.5px;font-variant-numeric:tabular-nums;line-height:1.5">{{ st.text }}</div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+      </sc-if>
+    </section>
+    </sc-if>
+
+  </main>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { tab: 1, dt: 0.5, v0: 3.0, motion: 'uniform', progress: 0, playing: false, recorded: false, answers: {}, checked: false,
+    q3: null, a3: '', checked3: false, score3: { c: 0, t: 0 },
+    distPts: {}, spdPts: {}, gchecked: false };
+
+  GW = 430; GH = 250; GPL = 50; GPR = 16; GPT = 16; GPB = 54; GMAXP = 9;
+
+  // position as a function of normalized progress u (0..1) across the track
+  PROFILE = {
+    uniform: (u) => u,
+    accel:   (u) => u * u,
+    decel:   (u) => 2 * u - u * u,
+  };
+  RULER_M = 6;     // ruler spans 0..6 m
+  START_M = 0.4;   // start of travel
+  END_M = 5.6;     // end of travel — the car always reaches here
+  N_MAX = 40;      // safety cap on number of snapshots
+  DURATION = 3600; // ms for a full playback
+
+  componentWillUnmount() { this.stop(); }
+  stop() { if (this._raf) { cancelAnimationFrame(this._raf); this._raf = null; } }
+
+  // shared: the recorded snapshot positions (meters) for the current settings
+  computeSnaps() {
+    const { dt, v0, motion } = this.state;
+    const f = this.PROFILE[motion];
+    const D = this.END_M - this.START_M;
+    const T = D / v0;
+    const count = Math.min(this.N_MAX, Math.floor(T / dt + 1e-9) + 1);
+    const snaps = [];
+    for (let k = 0; k < count; k++) {
+      const u = Math.min(1, (k * dt) / T);
+      snaps.push(this.START_M + D * f(u));
+    }
+    return { snaps, count, T, D };
+  }
+  setAnswer(i, val) { this.setState((s) => ({ answers: { ...s.answers, [i]: val } })); }
+
+  // ── Tab ③ : random m/s ↔ km/h question (nice numbers both ways) ──
+  makeQuestion() {
+    const bases = [1, 2, 5, 8, 10, 12, 15, 20, 25];
+    const base = bases[Math.floor(Math.random() * bases.length)];
+    const kmh = +(base * 3.6).toFixed(1);
+    if (Math.random() < 0.5) return { dir: 'toKmh', given: base, unitFrom: 'm/s', answer: kmh, unitTo: 'km/h' };
+    return { dir: 'toMps', given: kmh, unitFrom: 'km/h', answer: base, unitTo: 'm/s' };
+  }
+  componentDidMount() { if (!this.state.q3) this.setState({ q3: this.makeQuestion() }); }
+
+  play() {
+    this.stop();
+    const start = performance.now();
+    this.setState({ playing: true, progress: 0, recorded: false });
+    const step = (now) => {
+      const p = Math.min(1, (now - start) / this.DURATION);
+      this.setState({ progress: p });
+      if (p < 1) this._raf = requestAnimationFrame(step);
+      else { this._raf = null; this.setState({ playing: false, progress: 1, recorded: true }); }
+    };
+    this._raf = requestAnimationFrame(step);
+  }
+
+  // any control change resets to the finished strobe of the new settings
+  update(patch) { this.stop(); this.setState({ ...patch, playing: false, progress: 0, recorded: false, answers: {}, checked: false, distPts: {}, spdPts: {}, gchecked: false }); }
+
+  // ── graph model: shared by rendering and click handling ──
+  graphModel() {
+    const { dt } = this.state;
+    const { snaps } = this.computeSnaps();
+    const nP = Math.min(this.GMAXP, snaps.length);
+    const times = [], dist = [];
+    for (let k = 0; k < nP; k++) { times.push(+(k * dt).toFixed(2)); dist.push(+(snaps[k] - snaps[0]).toFixed(2)); }
+    const spd = [], sTimes = [];
+    for (let i = 0; i < nP - 1; i++) {
+      spd.push(+(((snaps[i + 1] - snaps[i]) / dt)).toFixed(2));
+      sTimes.push(+(((i + 0.5) * dt)).toFixed(2));
+    }
+    const tMax = times[nP - 1] || 0.5;
+    // axis maxima snap to 0.5 steps; y gets a little headroom so the top point is not on the edge
+    const up5 = (v) => Math.max(0.5, Math.ceil((v - 1e-9) / 0.5) * 0.5);
+    const xMax = up5(tMax);
+    const yUp = (v) => up5(v * 1.05);
+    return {
+      dist: { vals: dist, times, xMax, yMax: yUp(Math.max.apply(null, dist.concat([0.5]))), unit: 'm' },
+      spd: { vals: spd, times: sTimes, xMax, yMax: yUp(Math.max.apply(null, spd.concat([0.5]))), unit: 'm/s' },
+    };
+  }
+
+  plotClick(kind, e) {
+    const m = this.graphModel()[kind === 'dist' ? 'dist' : 'spd'];
+    const r = e.currentTarget.getBoundingClientRect();
+    const vx = ((e.clientX - r.left) / r.width) * this.GW;
+    const vy = ((e.clientY - r.top) / r.height) * this.GH;
+    const pw = this.GW - this.GPL - this.GPR, ph = this.GH - this.GPT - this.GPB;
+    let best = 0, bd = Infinity;
+    m.times.forEach((t, i) => {
+      const x = this.GPL + (t / m.xMax) * pw;
+      const d = Math.abs(x - vx);
+      if (d < bd) { bd = d; best = i; }
+    });
+    if (kind === 'dist' && best === 0) return;
+    let val = ((this.GH - this.GPB - vy) / ph) * m.yMax;
+    val = Math.max(0, Math.min(m.yMax, +val.toFixed(2)));
+    const key = kind === 'dist' ? 'distPts' : 'spdPts';
+    this.setState((s) => ({ [key]: { ...s[key], [best]: val } }));
+  }
+
+  buildGraph(kind, m, pts, gchecked) {
+    const pw = this.GW - this.GPL - this.GPR, ph = this.GH - this.GPT - this.GPB;
+    const green = '#1f7a45';
+    const color = kind === 'dist' ? 'var(--color-accent)' : 'var(--color-accent-2)';
+    const X = (t) => this.GPL + (t / m.xMax) * pw;
+    const Y = (v) => this.GH - this.GPB - (v / m.yMax) * ph;
+    const tol = m.yMax * 0.08;
+
+    const PX = (x) => (x / this.GW) * 100 + '%';
+    const PY = (y) => (y / this.GH) * 100 + '%';
+    const lblBase = { position: 'absolute', fontSize: '11px', fontVariantNumeric: 'tabular-nums', color: 'var(--color-neutral-600)', whiteSpace: 'nowrap', pointerEvents: 'none' };
+
+    // 0.5-step gridlines on both axes; labels thin out if there would be too many
+    const ySteps = Math.round(m.yMax / 0.5), xSteps = Math.round(m.xMax / 0.5);
+    const yEvery = ySteps > 13 ? 2 : 1, xEvery = xSteps > 13 ? 2 : 1;
+
+    const yLines = [];
+    for (let i = 0; i <= ySteps; i++) {
+      const v = +(i * 0.5).toFixed(1);
+      const show = i % yEvery === 0;
+      yLines.push({
+        key: 'y' + i, y: Y(v), x2: this.GW - this.GPR, x1: this.GPL, label: show ? v.toFixed(1) : '',
+        stroke: show ? 'var(--color-neutral-300)' : 'var(--color-neutral-200)',
+        labelStyle: { ...lblBase, left: PX(this.GPL - 8), top: PY(Y(v)), transform: 'translate(-100%,-50%)' },
+      });
+    }
+    const xLabels = [];
+    for (let i = 0; i <= xSteps; i++) {
+      const t = +(i * 0.5).toFixed(1);
+      const show = i % xEvery === 0;
+      xLabels.push({
+        key: 'x' + i, x: X(t), label: show ? t.toFixed(1) : '',
+        stroke: show ? 'var(--color-neutral-300)' : 'var(--color-neutral-200)',
+        labelStyle: { ...lblBase, left: PX(X(t)), top: PY(this.GH - this.GPB + 6), transform: 'translateX(-50%)' },
+      });
+    }
+    // faint guides at the photo times, so students see where a point belongs
+    const slots = m.times.map((t, i) => ({ key: 's' + i, x: X(t) }));
+    const unitStyle = { ...lblBase, left: PX(this.GPL + 7), top: PY(1), transform: 'none', color: 'var(--color-neutral-500)' };
+    const xCapStyle = { ...lblBase, left: PX(this.GW - this.GPR), top: PY(this.GH - this.GPB + 32), transform: 'translateX(-100%)', color: 'var(--color-neutral-500)' };
+
+    const plotted = [];
+    m.times.forEach((t, i) => {
+      const anchor = kind === 'dist' && i === 0;
+      const v = anchor ? 0 : pts[i];
+      if (v == null) return;
+      const ok = Math.abs(v - m.vals[i]) <= tol;
+      plotted.push({
+        key: 'p' + i, cx: X(t), cy: Y(v),
+        fill: anchor ? color : (gchecked ? (ok ? green : 'var(--color-accent-2-700)') : color),
+        r: anchor ? 4.5 : 6, opacity: anchor ? 0.55 : 1, t,
+      });
+    });
+    plotted.sort((a, b) => a.t - b.t);
+    const line = plotted.length > 1 ? plotted.map((p) => p.cx.toFixed(1) + ',' + p.cy.toFixed(1)).join(' ') : '';
+    const answer = gchecked ? m.times.map((t, i) => X(t).toFixed(1) + ',' + Y(m.vals[i]).toFixed(1)).join(' ') : '';
+
+    const need = kind === 'dist' ? m.times.length - 1 : m.times.length;
+    const done = m.times.filter((t, i) => (kind === 'dist' && i === 0) || pts[i] != null).length - (kind === 'dist' ? 1 : 0);
+    const nOk = m.times.filter((t, i) => {
+      if (kind === 'dist' && i === 0) return false;
+      return pts[i] != null && Math.abs(pts[i] - m.vals[i]) <= tol;
+    }).length;
+
+    return {
+      yLines, xLabels, slots, plotted, line, answer, color, unitStyle, xCapStyle,
+      unitLabel: m.unit,
+      axisX1: this.GPL, axisX2: this.GW - this.GPR, axisY: this.GH - this.GPB, axisTop: this.GPT,
+      hitX: this.GPL, hitY: this.GPT, hitW: pw, hitH: ph,
+      viewBox: '0 0 ' + this.GW + ' ' + this.GH,
+      progress: done + ' / ' + need + ' 점',
+      scoreText: gchecked ? need + '점 중 ' + nOk + '개 정답' : '',
+      showAnswer: gchecked,
+    };
+  }
+
+  graphVals() {
+    const { distPts, spdPts, gchecked, motion } = this.state;
+    const M = this.graphModel();
+    const gDist = this.buildGraph('dist', M.dist, distPts, gchecked);
+    const gSpd = this.buildGraph('spd', M.spd, spdPts, gchecked);
+    const shape = {
+      uniform: { d: '이동 거리가 시간에 비례해 늘어나 기울기가 일정한 직선이 됩니다.', s: '속력이 변하지 않아 시간축과 평행한 수평선이 됩니다.' },
+      accel: { d: '갈수록 같은 시간에 더 멀리 가므로 위로 휘어지는 곡선이 됩니다.', s: '속력이 일정하게 커지므로 오른쪽으로 올라가는 직선이 됩니다.' },
+      decel: { d: '갈수록 같은 시간에 덜 이동하므로 점점 평평해지는 곡선이 됩니다.', s: '속력이 일정하게 작아지므로 오른쪽으로 내려가는 직선이 됩니다.' },
+    }[motion];
+    return {
+      gDist, gSpd, gchecked,
+      distYMax: M.dist.yMax.toFixed(1), spdYMax: M.spd.yMax.toFixed(1),
+      onPlotDist: (e) => this.plotClick('dist', e),
+      onPlotSpd: (e) => this.plotClick('spd', e),
+      onCheckGraph: () => this.setState({ gchecked: true }),
+      onClearGraph: () => this.setState({ distPts: {}, spdPts: {}, gchecked: false }),
+      shapeDist: shape.d, shapeSpd: shape.s,
+    };
+  }
+
+  tabBtnStyle(active) {
+    return {
+      flex: '1 1 200px', minWidth: '160px', cursor: 'pointer',
+      fontFamily: 'var(--font-heading)', fontWeight: 600, fontSize: '17px',
+      padding: '14px 16px', borderRadius: '10px 10px 0 0',
+      border: '1px solid var(--color-divider)', borderBottom: 'none',
+      background: active ? 'var(--color-accent)' : 'var(--color-surface)',
+      color: active ? 'var(--color-bg)' : 'color-mix(in srgb, var(--color-text) 78%, transparent)',
+      boxShadow: active ? 'var(--shadow-sm)' : 'none',
+      transition: 'background .15s, color .15s',
+    };
+  }
+  motionBtnStyle(active) {
+    return {
+      textAlign: 'left', cursor: 'pointer', fontFamily: 'var(--font-heading)',
+      fontSize: '16px', padding: '14px 16px', borderRadius: '10px',
+      border: active ? '2px solid var(--color-accent-2)' : '1px solid var(--color-divider)',
+      background: active ? 'var(--color-accent-2-100)' : 'var(--color-surface)',
+      color: 'var(--color-text)',
+      boxShadow: active ? 'var(--shadow-sm)' : 'none',
+      transition: 'background .15s, border-color .15s',
+    };
+  }
+
+  renderVals() {
+    const { tab, dt, v0, motion, progress, playing, recorded, answers, checked } = this.state;
+    const f = this.PROFILE[motion];
+    const dtLabel = dt.toFixed(1);
+    const v0Label = v0.toFixed(1);
+    const D = this.END_M - this.START_M;
+    const pctOf = (m) => (m / this.RULER_M) * 100;
+
+    // The car always crosses the whole track; snapshots are taken every Δt
+    // along the way, so their COUNT varies while the car still reaches the end.
+    const { snaps, count, T } = this.computeSnaps();
+    const total = count;
+
+    const simTime = progress * T;
+    const revealed = Math.min(count, Math.floor(simTime / dt + 1e-9) + 1);
+    const simLabel = simTime.toFixed(1);
+
+    // live car follows the same profile over normalized progress
+    const carM = this.START_M + D * f(Math.min(1, progress));
+
+    const frames = snaps.map((m, i) => {
+      const visible = (playing || recorded) && i < revealed;
+      const op = count > 1 ? 0.4 + (i / (count - 1)) * 0.6 : 1;
+      return {
+        key: 'f' + i, label: count <= 10 ? (i + 1) + '' : '',
+        style: {
+          position: 'absolute', left: pctOf(m) + '%', bottom: '12px',
+          transformOrigin: 'bottom center',
+          transform: 'translateX(-50%) scale(' + (visible ? 1 : 0.5) + ')',
+          color: 'var(--color-accent-2)', opacity: visible ? op : 0,
+          transition: 'opacity .2s ease, transform .2s ease', pointerEvents: 'none',
+        },
+      };
+    });
+
+    const liveStyle = {
+      position: 'absolute', left: pctOf(carM) + '%', bottom: '10px',
+      transform: 'translateX(-50%)', pointerEvents: 'none', zIndex: 5,
+      filter: 'drop-shadow(0 3px 4px rgba(0,0,0,.3))',
+      display: (playing || !recorded) ? 'block' : 'none',
+    };
+
+    const ticks = [];
+    for (let m = 0; m <= this.RULER_M; m++) {
+      const major = true;
+      ticks.push({
+        key: 't' + m, label: m + '',
+        wrapStyle: { position: 'absolute', left: pctOf(m) + '%', top: 0, transform: 'translateX(-50%)', textAlign: 'center' },
+        tickStyle: { width: '2px', height: major ? '11px' : '7px', margin: '0 auto',
+          background: 'color-mix(in srgb, var(--color-text) ' + (major ? 55 : 35) + '%, transparent)' },
+        labelStyle: { fontSize: '12px', fontVariantNumeric: 'tabular-nums', marginTop: '3px',
+          color: 'color-mix(in srgb, var(--color-text) 65%, transparent)' },
+      });
+    }
+
+    const analysis = {
+      uniform: {
+        title: '⚖️ 등속 운동',
+        text: '이웃한 사진 사이 간격이 모두 같아요. 같은 시간 동안 같은 거리를 이동했으므로 속력이 일정한 등속 운동입니다.',
+      },
+      accel: {
+        title: '🚀 점점 빨라지는 운동',
+        text: '뒤로 갈수록 사진 사이 간격이 넓어져요. 같은 시간 동안 더 먼 거리를 이동했으므로 속력이 점점 커지는 운동입니다.',
+      },
+      decel: {
+        title: '🛑 점점 느려지는 운동',
+        text: '뒤로 갈수록 사진 사이 간격이 좁아져요. 같은 시간 동안 이동 거리가 줄어들므로 속력이 점점 작아지는 운동입니다.',
+      },
+    }[motion];
+
+    // ── Tab ② : analyse the speed of the recorded snapshots ──
+    const MAX_ROWS = 8;
+    const nInt = Math.max(0, count - 1);
+    const shown = Math.min(MAX_ROWS, nInt);
+    const green = '#1f7a45';
+    const intervals = [];
+    for (let i = 0; i < shown; i++) {
+      const dDisp = +(snaps[i + 1] - snaps[i]).toFixed(2);
+      const tDisp = +dt.toFixed(1);
+      const ans = +(dDisp / tDisp).toFixed(2);
+      const raw = answers[i] == null ? '' : String(answers[i]);
+      const parsed = parseFloat(raw);
+      const filled = raw !== '' && !isNaN(parsed);
+      const correct = filled && Math.abs(parsed - ans) <= 0.06;
+      intervals.push({
+        key: 'iv' + i,
+        rowLabel: '📸 ' + (i + 1) + ' → ' + (i + 2),
+        dLabel: dDisp.toFixed(2), tLabel: tDisp.toFixed(1),
+        ans, value: raw,
+        onInput: ((k) => (e) => this.setAnswer(k, e.target.value))(i),
+        mark: !checked ? '' : correct ? '⭕' : '✕',
+        rowStyle: { background: !checked ? 'transparent' : correct ? 'color-mix(in srgb, ' + green + ' 15%, transparent)' : 'color-mix(in srgb, var(--color-accent-2) 12%, transparent)', transition: 'background .2s' },
+        markStyle: { textAlign: 'center', fontWeight: 700, fontSize: '18px', color: !checked ? 'transparent' : correct ? green : 'var(--color-accent-2-700)' },
+        solution: dDisp.toFixed(2) + ' m ÷ ' + tDisp.toFixed(1) + ' s = ' + ans.toFixed(2) + ' m/s',
+        showSolution: checked && !correct,
+      });
+    }
+    const nCorrect = intervals.filter((iv) => iv.mark === '⭕').length;
+    const scoreText = checked ? shown + '개 구간 중 ' + nCorrect + '개 정답' : '';
+    let commentTitle = '', commentText = '';
+    if (checked && shown >= 2) {
+      const sp = intervals.map((iv) => iv.ans);
+      const inc = sp.every((v, i) => i === 0 || v > sp[i - 1] + 0.03);
+      const dec = sp.every((v, i) => i === 0 || v < sp[i - 1] - 0.03);
+      const eq = sp.every((v) => Math.abs(v - sp[0]) <= 0.03);
+      if (eq) { commentTitle = '⚖️ 등속 운동'; commentText = '모든 구간의 속력이 거의 같아요. 속력이 일정한 등속 운동입니다.'; }
+      else if (inc) { commentTitle = '🚀 점점 빨라지는 운동'; commentText = '구간이 지날수록 속력이 점점 커져요. 점점 빨라지는 운동입니다.'; }
+      else if (dec) { commentTitle = '🛑 점점 느려지는 운동'; commentText = '구간이 지날수록 속력이 점점 작아져요. 점점 느려지는 운동입니다.'; }
+      else { commentTitle = '📈 속력이 변하는 운동'; commentText = '구간마다 속력이 달라요. 값을 비교하며 변화를 살펴보세요.'; }
+    }
+    const strip = snaps.map((m, i) => ({
+      key: 'st' + i, label: count <= 12 ? (i + 1) + '' : '',
+      style: { position: 'absolute', left: pctOf(m) + '%', bottom: '8px', transform: 'translateX(-50%)', color: 'var(--color-accent-2)', pointerEvents: 'none' },
+    }));
+    const motionLabel = { uniform: '등속 운동', accel: '점점 빨라지는 운동', decel: '점점 느려지는 운동' }[motion];
+
+    return {
+      isTab1: tab === 1, isTab2: tab === 2, isTab3: tab === 3,
+      selectTab1: () => this.setState({ tab: 1 }),
+      selectTab2: () => this.setState({ tab: 2 }),
+      selectTab3: () => this.setState({ tab: 3 }),
+      tab1Style: this.tabBtnStyle(tab === 1),
+      tab2Style: this.tabBtnStyle(tab === 2),
+      tab3Style: this.tabBtnStyle(tab === 3),
+
+      dt, dtLabel, v0, v0Label, playing,
+      onDt: (e) => this.update({ dt: parseFloat(e.target.value) }),
+      onV0: (e) => this.update({ v0: parseFloat(e.target.value) }),
+      onPlay: () => this.play(),
+      playLabel: playing ? '● 기록 중…' : '▶ 기록 재생',
+      simLabel, revealed, total,
+
+      dtNote: dt <= 0.3
+        ? '시간 간격이 짧아 위치를 자주 기록해요. 사진이 촘촘하게 겹쳐 찍힙니다.'
+        : dt >= 0.8
+        ? '시간 간격이 길어 가끔만 기록해요. 사진 사이가 듬성듬성 벌어집니다.'
+        : '시간 간격을 바꾸면 사진을 찍는 횟수와 간격이 함께 달라져요.',
+      v0Note: v0 >= 3.8
+        ? '자동차가 빨라서 트랙을 금방 지나가요. 같은 Δt로 찍으면 사진 수가 적어집니다.'
+        : v0 <= 2.0
+        ? '자동차가 느려서 트랙을 천천히 지나가요. 같은 Δt로 찍으면 사진 수가 많아집니다.'
+        : '속력을 바꾸면 트랙을 지나는 시간이 달라져, 찍히는 사진 수도 함께 달라져요.',
+
+      setUniform: () => this.update({ motion: 'uniform' }),
+      setAccel: () => this.update({ motion: 'accel' }),
+      setDecel: () => this.update({ motion: 'decel' }),
+      mUniformStyle: this.motionBtnStyle(motion === 'uniform'),
+      mAccelStyle: this.motionBtnStyle(motion === 'accel'),
+      mDecelStyle: this.motionBtnStyle(motion === 'decel'),
+
+      frames, liveStyle, ticks,
+      analysisTitle: analysis.title, analysisText: analysis.text,
+
+      intervals, strip, motionLabel, checked,
+      onCheck: () => this.setState({ checked: true }),
+      onReset: () => this.setState({ answers: {}, checked: false }),
+      scoreText, commentTitle, commentText,
+      showTrunc: nInt > MAX_ROWS, truncMax: MAX_ROWS,
+
+      ...this.graphVals(),
+      // ── Tab ③ unit conversion ──
+      ...this.tab3Vals(),
+    };
+  }
+
+  tab3Vals() {
+    const { q3, a3, checked3, score3 } = this.state;
+    if (!q3) return { q3ready: false };
+    const parsed = parseFloat((a3 || '').replace(',', '.'));
+    const filled = (a3 || '').trim() !== '' && !isNaN(parsed);
+    const correct = filled && Math.abs(parsed - q3.answer) <= 0.1;
+
+    const steps = q3.dir === 'toKmh'
+      ? [
+          { key: 's1', text: q3.given + ' m/s × (3600 s ÷ 1000 m) = ' + q3.answer + ' km/h' },
+          { key: 's2', text: '간단히 : ' + q3.given + ' × 3.6 = ' + q3.answer + ' km/h' },
+        ]
+      : [
+          { key: 's1', text: q3.given + ' km/h × (1000 m ÷ 3600 s) = ' + q3.answer + ' m/s' },
+          { key: 's2', text: '간단히 : ' + q3.given + ' ÷ 3.6 = ' + q3.answer + ' m/s' },
+        ];
+
+    return {
+      q3ready: true,
+      q3Text: q3.given + ' ' + q3.unitFrom + ' 는 몇 ' + q3.unitTo + ' 일까요?',
+      q3UnitTo: q3.unitTo, a3, checked3,
+      onA3: (e) => this.setState({ a3: e.target.value }),
+      onNext3: () => this.setState({ q3: this.makeQuestion(), a3: '', checked3: false }),
+      onCheck3: () => this.setState((s) => {
+        if (s.checked3) return {};
+        const p = parseFloat((s.a3 || '').replace(',', '.'));
+        const ok = (s.a3 || '').trim() !== '' && !isNaN(p) && Math.abs(p - s.q3.answer) <= 0.1;
+        return { checked3: true, score3: { c: s.score3.c + (ok ? 1 : 0), t: s.score3.t + 1 } };
+      }),
+      q3BannerStyle: {
+        padding: '14px 18px', borderRadius: '10px', fontSize: '15.5px', fontWeight: 600,
+        fontFamily: 'var(--font-heading)',
+        background: correct ? 'color-mix(in srgb, #1f7a45 14%, transparent)' : 'var(--color-accent-2-100)',
+        color: correct ? '#1a6b3c' : 'var(--color-accent-2-700)',
+      },
+      q3BannerText: correct ? '⭕ 정답이에요!' : ('❌ 다시 확인해 볼까요? 정답은 ' + q3.answer + ' ' + q3.unitTo + ' 입니다.'),
+      q3Steps: steps,
+      scoreText3: '맞춘 문제 ' + score3.c + ' / ' + score3.t,
+    };
+  }
+}
+</script>
+</body>
+</html>
