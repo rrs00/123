@@ -264,10 +264,12 @@ svg text,button,input,textarea{font-family:inherit}
    CONFIG : 선생님이 바꿀 수 있는 숫자들
    ================================================================ */
 var CONFIG = {
-  massMin: 32.0,                    // 쇠구슬 질량 최솟값 (g) - 저울에 보이는 값
-  massMax: 34.0,                    // 쇠구슬 질량 최댓값 (g)
-  heightOcm: [98, 99, 100, 101, 102], // O점 높이 후보 (줄자 눈금, cm) - 이 중 하나가 무작위로 정해짐
-  heightAcm: [48, 49, 50, 51, 52],  // A점 높이 후보 (줄자 눈금, cm)
+  // 질량 100 g, O점 0.9 m, A점 0.5 m로 하면 오차가 없을 때 A점 2.8 m/s, B점 4.2 m/s가 되고
+  // 에너지도 0.882 J, 0.49 J, 0.392 J처럼 딱 떨어진다.
+  massMin: 100.0,                   // 쇠구슬 질량 최솟값 (g) - 저울에 보이는 값
+  massMax: 100.0,                   // 쇠구슬 질량 최댓값 (g) - 최솟값과 같으면 항상 이 값
+  heightOcm: [90],                  // O점 높이 후보 (줄자 눈금, cm) - 여러 개 쓰면 그중 하나가 무작위로 정해짐
+  heightAcm: [50],                  // A점 높이 후보 (줄자 눈금, cm)
   lossMin: 0.005,                   // 측정 속력이 이론값보다 작아지는 정도 최소 (0.005 = 0.5%)
   lossMax: 0.015,                   // 측정 속력이 이론값보다 작아지는 정도 최대 (0.015 = 1.5%)
   jitter: 0.005,                    // 측정할 때마다 생기는 무작위 차이 (0.005 = ±0.5%)
@@ -276,7 +278,7 @@ var CONFIG = {
 };
 
 var TEACHER = new URLSearchParams(location.search).get('teacher') === '1';
-var KEY = 'freefall-energy-v1';
+var KEY = 'freefall-energy-v2';
 var K = 9.8;
 var STEPS = ['준비','질량 측정','높이 측정','속력 측정','속력의 평균','에너지 계산','에너지 변화 비교','관계 정리','마무리'];
 var EN_NAME = {pe:'위치 에너지', ke:'운동 에너지', me:'역학적 에너지'};
@@ -842,7 +844,7 @@ function doDrop(){
 }
 function rollScale(){
   var el = $('#scaleLcd'); if(!el) return;
-  var seq = ['6.4','21.8','35.2','32.6','33.9', S.massG.toFixed(1)], i = 0;
+  var seq = ['18.6','64.2','103.5','99.1','100.4', S.massG.toFixed(1)], i = 0;
   (function step(){ if(!el.isConnected) return; el.textContent = seq[i++]; if(i < seq.length) setTimeout(step, 110); })();
 }
 
