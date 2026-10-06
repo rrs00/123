@@ -28,7 +28,7 @@
   --on:#f59e0b; --on-soft:#fff4d6; --on-ink:#5a3400;
   --s-tube:rgba(160,205,240,.28); --s-tube-line:#6f9cc2; --s-cap:#4b5563;
   --s-wire:#b45309; --s-coil:#c2410c; --s-coil-dark:#7c2d12;
-  --s-led-off:#b4535f; --s-bat:#374151; --s-bat-fill:#16a34a;
+  --s-bat:#374151; --s-bat-fill:#16a34a;
   --bar-bg:#e3e7ec;
   color-scheme: light dark;
 }
@@ -40,7 +40,7 @@
     --on:#fbbf24; --on-soft:#3d2f0c; --on-ink:#ffe6a3;
     --s-tube:rgba(140,190,235,.14); --s-tube-line:#7fb0d8; --s-cap:#9aa3af;
     --s-wire:#d97706; --s-coil:#ea580c; --s-coil-dark:#9a3412;
-    --s-led-off:#8a3a45; --s-bat:#c3cad4; --s-bat-fill:#22c55e;
+    --s-bat:#c3cad4; --s-bat-fill:#22c55e;
     --bar-bg:#2a3442;
   }
 }
@@ -62,13 +62,6 @@ p{margin:0 0 10px}
 .stagehead .sub{margin:4px 0 0;font-weight:700;color:var(--pri)}
 .hidden{display:none !important}
 
-/* 위쪽 단계 표시 */
-.top{position:sticky;top:0;z-index:20;background:var(--card);border-bottom:1px solid var(--line)}
-.topin{max-width:520px;margin:0 auto;padding:8px 16px;display:flex;gap:6px}
-.top .st{flex:1;text-align:center;font-size:14px;font-weight:700;color:var(--sub);
-  border-radius:99px;padding:4px 0;background:var(--bg)}
-.top .st.cur{background:var(--pri);color:var(--pri-ink)}
-
 /* 안내 상자 */
 .notice{background:var(--pri-soft);border-radius:12px;padding:12px 14px;margin:10px 0;font-weight:700}
 .safety{background:var(--warn-soft);border:2px solid var(--warn);border-radius:12px;padding:12px 14px;margin:12px 0}
@@ -85,8 +78,6 @@ p{margin:0 0 10px}
 .btn-flash.is-on{background:#374151;color:#fff}
 .btn:disabled{opacity:.5;cursor:wait}
 .btn:focus-visible{outline:3px solid var(--pri);outline-offset:2px}
-.btnrow{display:flex;gap:10px;margin-top:12px}
-.btnrow .btn{flex:1}
 .linkbtn{appearance:none;background:none;border:1.5px solid var(--line);border-radius:99px;color:var(--sub);
   font:inherit;font-size:14px;font-weight:700;padding:6px 14px;cursor:pointer;min-height:40px}
 
@@ -105,7 +96,6 @@ p{margin:0 0 10px}
 .rig .sv-coil-back{stroke:var(--s-coil-dark)}
 .rig .sv-wire{stroke:var(--s-wire)}
 .rig .sv-ptr{stroke:var(--sub);stroke-width:1}
-.rig .sv-led{fill:var(--s-led-off)}
 .rig .sv-bat{fill:var(--card);stroke:var(--s-bat)}
 .rig .sv-bat-cap{fill:var(--s-bat)}
 .rig .sv-bat-fill{fill:var(--s-bat-fill)}
@@ -145,16 +135,7 @@ p{margin:0 0 10px}
 .q label{display:block;font-weight:700;margin-bottom:6px}
 textarea{width:100%;min-height:110px;border:2px solid var(--line);border-radius:12px;background:var(--input);color:var(--ink);
   font:inherit;font-size:17px;padding:12px;resize:vertical}
-textarea:focus,input.txt:focus{outline:none;border-color:var(--pri);box-shadow:0 0 0 3px var(--pri-soft)}
-input.txt{width:100%;min-height:54px;border:2px solid var(--line);border-radius:12px;background:var(--input);color:var(--ink);
-  font:inherit;font-size:18px;padding:10px 12px}
-ol.steps{margin:0;padding-left:22px} ol.steps li{margin:4px 0}
-
-/* 결과 보기 */
-.res h3{font-size:16px;margin:14px 0 4px;color:var(--pri)}
-.res .ans{white-space:pre-wrap;border:1.5px solid var(--line);border-radius:10px;padding:10px 12px;background:var(--input);min-height:2.6em}
-.res .ans.empty{color:var(--sub);font-style:italic}
-.res .meta{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;font-size:14px;color:var(--sub)}
+textarea:focus{outline:none;border-color:var(--pri);box-shadow:0 0 0 3px var(--pri-soft)}
 
 /* 화면 플래시 */
 #flashOverlay{position:fixed;inset:0;z-index:100;background:#fff;color:#111;display:flex;flex-direction:column;
@@ -176,15 +157,6 @@ ol.steps{margin:0;padding-left:22px} ol.steps li{margin:4px 0}
 </head>
 <body>
 
-<!-- ============ 위쪽 단계 표시 ============ -->
-<header class="top hidden" id="topbar">
-  <div class="topin">
-    <div class="st" data-st="1">1단계</div>
-    <div class="st" data-st="2">2단계</div>
-    <div class="st" data-st="r">결과</div>
-  </div>
-</header>
-
 <main class="wrap">
 
   <!-- ============ 시작 화면 ============ -->
@@ -193,7 +165,7 @@ ol.steps{margin:0;padding-left:22px} ol.steps li{margin:4px 0}
       <div class="eyebrow">중학교 3학년 과학 · 가상 실험</div>
       <h1>간이 발전기 만들기</h1>
       <p>폰을 흔들면 화면 속 네오디뮴 자석이 플라스틱 관 속을 움직여요.<br>
-         코일과 발광 다이오드를 잘 관찰해 보세요.</p>
+         코일과 가상 전지를 잘 관찰해 보세요.</p>
       <div class="notice">이 앱은 가상 실험입니다. 실제로 폰이 충전되지는 않아요.</div>
       <div class="safety">
         <h3>⚠️ 안전하게 실험해요</h3>
@@ -207,16 +179,12 @@ ol.steps{margin:0;padding-left:22px} ol.steps li{margin:4px 0}
     </div>
   </section>
 
-  <!-- ============ 실험 화면 (1단계 · 2단계 함께 사용) ============ -->
+  <!-- ============ 실험 화면 ============ -->
   <section id="screenLab" class="hidden">
 
-    <!-- 단계 제목 -->
-    <div class="stagehead s1only">
-      <div class="eyebrow">1단계 · 교과서 그대로</div>
-      <h2>발광 다이오드 켜기</h2>
-    </div>
-    <div class="stagehead s2only">
-      <div class="eyebrow">2단계 · 확장</div>
+    <!-- 제목 -->
+    <div class="stagehead">
+      <div class="eyebrow">간이 발전기의 활용</div>
       <h2>흔들이 손전등</h2>
       <p class="sub">실생활에서는 이 원리를 흔들이 손전등에 이용해요.</p>
     </div>
@@ -235,11 +203,6 @@ ol.steps{margin:0;padding-left:22px} ol.steps li{margin:4px 0}
             <linearGradient id="gCap" x1="0" x2="1">
               <stop offset="0" stop-color="#374151"/><stop offset=".4" stop-color="#6b7280"/><stop offset="1" stop-color="#1f2937"/>
             </linearGradient>
-            <radialGradient id="gGlow">
-              <stop offset="0" stop-color="#ff5a5a" stop-opacity="1"/>
-              <stop offset=".45" stop-color="#ff3b3b" stop-opacity=".55"/>
-              <stop offset="1" stop-color="#ff3b3b" stop-opacity="0"/>
-            </radialGradient>
           </defs>
 
           <!-- 관 (뒤쪽) -->
@@ -277,22 +240,8 @@ ol.steps{margin:0;padding-left:22px} ol.steps li{margin:4px 0}
           <text class="lbl" x="6" y="438">자석</text>
           <line id="magPtr" class="sv-ptr" x1="68" y1="430" x2="138" y2="430"/>
 
-          <!-- 1단계: 발광 다이오드 (코일 양 끝이 다리에 연결됨) -->
-          <g id="ledGroup">
-            <path class="sv-wire" d="M206 222 C 245 222, 250 306, 288 306" stroke-width="3" fill="none"/>
-            <path class="sv-wire" d="M206 338 C 250 338, 304 344, 304 318" stroke-width="3" fill="none"/>
-            <circle id="ledGlow" cx="296" cy="240" r="38" fill="url(#gGlow)" opacity="0"/>
-            <line x1="288" y1="266" x2="288" y2="306" stroke="#9ca3af" stroke-width="3"/>
-            <line x1="304" y1="266" x2="304" y2="318" stroke="#9ca3af" stroke-width="3"/>
-            <path id="ledBody" class="sv-led" d="M281 264 L281 240 A15 15 0 0 1 311 240 L311 264 Z" stroke="#7f1d1d" stroke-width="1.5"/>
-            <rect id="ledRim" class="sv-led" x="278" y="260" width="36" height="7" rx="2" stroke="#7f1d1d" stroke-width="1.2"/>
-            <path d="M287 244 A9 9 0 0 1 296 232" stroke="#fff" stroke-width="2.5" fill="none" opacity=".55" stroke-linecap="round"/>
-            <text class="lbl-strong" x="296" y="176" text-anchor="middle">발광</text>
-            <text class="lbl-strong" x="296" y="195" text-anchor="middle">다이오드</text>
-          </g>
-
-          <!-- 2단계: 가상 전지 (코일 양 끝이 전지에 연결됨) -->
-          <g id="batGroup" class="hidden">
+          <!-- 가상 전지 (코일 양 끝이 전지에 연결됨) -->
+          <g id="batGroup">
             <path class="sv-wire" d="M206 222 C 240 222, 255 196, 294 196 L294 206" stroke-width="3" fill="none"/>
             <path class="sv-wire" d="M206 338 C 245 338, 294 346, 294 312" stroke-width="3" fill="none"/>
             <rect class="sv-bat" x="268" y="214" width="52" height="98" rx="8" stroke-width="3"/>
@@ -315,8 +264,8 @@ ol.steps{margin:0;padding-left:22px} ol.steps li{margin:4px 0}
         <div class="track"><div class="fill" id="meterFill"></div></div>
       </div>
 
-      <!-- 2단계: 전지 게이지와 플래시 -->
-      <div class="s2only">
+      <!-- 전지 게이지와 플래시 -->
+      <div>
         <div class="battery">
           <div class="bt">가상 전지</div>
           <div class="body"><div class="lvl" id="batLvl"></div></div>
@@ -331,14 +280,7 @@ ol.steps{margin:0;padding-left:22px} ol.steps li{margin:4px 0}
     <div class="card">
       <h3>에너지 전환 과정</h3>
       <p class="small" style="margin:0">지금 일어나는 단계가 노란색으로 밝아져요.</p>
-      <div class="flow s1only">
-        <div class="row">
-          <div class="e" id="f1a">역학적<br>에너지</div><div class="ar" id="f1x">→</div>
-          <div class="e" id="f1b">전기<br>에너지</div><div class="ar" id="f1y">→</div>
-          <div class="e" id="f1c">빛에너지</div>
-        </div>
-      </div>
-      <div class="flow s2only">
+      <div class="flow">
         <div class="fl">충전할 때</div>
         <div class="row">
           <div class="e" id="f2a">역학적<br>에너지</div><div class="ar" id="f2x">→</div>
@@ -355,79 +297,25 @@ ol.steps{margin:0;padding-left:22px} ol.steps li{margin:4px 0}
       </div>
     </div>
 
-    <!-- 1단계 실험 방법 -->
-    <div class="card s1only">
-      <h3>실험 방법</h3>
-      <p>플라스틱 관에 에나멜선을 감아 코일을 만들고, 관 속에 네오디뮴 자석을 넣은 간이 발전기예요.
-         코일의 양 끝은 발광 다이오드에 연결되어 있어요.</p>
-      <ol class="steps">
-        <li>폰을 세로로 세워 두 손으로 잡고, 위아래(긴 방향)로 흔들어 보세요.</li>
-        <li>폰을 눕혀서 천천히 기울여 자석을 코일 속에 멈춰 세워 보세요.</li>
-        <li>폰을 더 빠르게 흔들어 보세요.</li>
-      </ol>
-      <p class="small" style="margin:8px 0 0">각각 발광 다이오드와 전류 세기 막대를 잘 관찰하세요.</p>
-    </div>
-
-    <!-- 2단계 알아보기 -->
-    <div class="card s2only">
+    <!-- 알아보기 -->
+    <div class="card">
       <h3>알아보기</h3>
       <p>코일 속에서 자석을 움직여 코일에 전류가 흐르게 하는 현상을 <b>전자기 유도</b>라고 하고,
          이때 흐르는 전류를 <b>유도 전류</b>라고 해요. 이 원리로 전기를 만드는 장치가 <b>발전기</b>예요.</p>
-      <p style="margin:0">이번에는 발광 다이오드 대신 ‘가상 전지’가 연결되어 있어요.
-         폰을 흔들어 전지를 충전하고, 플래시를 켜 보세요.</p>
+      <p style="margin:0">이 장치에서는 코일의 양 끝에 ‘가상 전지’가 연결되어 있어요.
+         폰을 세로로 세워 두 손으로 잡고 위아래(긴 방향)로 흔들어 전지를 충전한 뒤, 플래시를 켜 보세요.</p>
     </div>
 
-    <!-- 1단계 관찰 질문 -->
-    <div class="card s1only">
-      <h3>관찰한 것을 써 보자</h3>
-      <div class="q">
-        <label for="q1">① 자석이 멈춰 있을 때 발광 다이오드는 어떻게 되는가?</label>
-        <textarea id="q1" data-key="q1" placeholder="관찰한 대로 써 보세요."></textarea>
-      </div>
-      <div class="q">
-        <label for="q2">② 폰을 더 빠르게 흔들면 발광 다이오드의 밝기는 어떻게 되는가?</label>
-        <textarea id="q2" data-key="q2" placeholder="관찰한 대로 써 보세요."></textarea>
-      </div>
-      <p class="msg" id="s1Msg"></p>
-      <button class="btn btn-pri" id="btnToS2" type="button">2단계로 가기 →</button>
-    </div>
-
-    <!-- 2단계 정리 질문 -->
-    <div class="card s2only">
+    <!-- 정리 질문 -->
+    <div class="card">
       <h3>정리해 보자</h3>
       <div class="q">
         <label for="q3">폰을 흔들 때부터 플래시가 켜질 때까지 에너지가 어떻게 전환되는지 순서대로 써 보자.</label>
         <textarea id="q3" data-key="q3" placeholder="예: ○○ 에너지 → ○○ 에너지 → …"></textarea>
       </div>
-      <div class="btnrow">
-        <button class="btn btn-sec" id="btnToS1" type="button">← 1단계</button>
-        <button class="btn btn-pri" id="btnToResult" type="button">결과 보기</button>
-      </div>
     </div>
   </section>
 
-  <!-- ============ 결과 보기 ============ -->
-  <section id="screenResult" class="hidden">
-    <div class="card">
-      <label class="small" for="who" style="font-weight:700">번호와 이름을 써 주세요</label>
-      <input class="txt" id="who" data-key="who" placeholder="예: 3반 12번 홍길동" autocomplete="off">
-    </div>
-    <div class="card res" id="resCard">
-      <div class="eyebrow">간이 발전기 만들기 · 나의 탐구 결과</div>
-      <div class="meta"><span id="resWho"></span><span id="resDate"></span></div>
-      <h3>① 자석이 멈춰 있을 때 발광 다이오드는 어떻게 되는가?</h3>
-      <div class="ans" id="r1"></div>
-      <h3>② 폰을 더 빠르게 흔들면 발광 다이오드의 밝기는 어떻게 되는가?</h3>
-      <div class="ans" id="r2"></div>
-      <h3>③ 폰을 흔들 때부터 플래시가 켜질 때까지 에너지가 어떻게 전환되는지 순서대로 써 보자.</h3>
-      <div class="ans" id="r3"></div>
-    </div>
-    <p class="small center" style="text-align:center">이 화면을 캡처해서 제출하세요.</p>
-    <div class="btnrow">
-      <button class="btn btn-sec" id="btnBack" type="button">← 답 고치기</button>
-      <button class="btn btn-pri" id="btnRestart" type="button">처음부터 다시 하기</button>
-    </div>
-  </section>
 </main>
 
 <!-- ============ 화면 플래시 (뒷면 손전등을 못 쓸 때) ============ -->
@@ -463,9 +351,9 @@ const CONFIG = {
   FULL_SPEED: 2000,
   // 손가락 모드에서 전류 세기 막대가 끝까지 차는 빠르기 (손가락은 흔들기보다 느려서 더 작게 함)
   FINGER_FULL_SPEED: 1200,
-  // 2단계: 충전 빠르기 (열심히 흔들면 약 30초에 100%가 되도록 맞춘 값. 크면 빨리 참)
+  // 충전 빠르기 (열심히 흔들면 약 30초에 100%가 되도록 맞춘 값. 크면 빨리 참)
   CHARGE_SPEED: 11,
-  // 2단계: 플래시를 켰을 때 1초마다 줄어드는 양(%) (5 → 100%에서 약 20초 동안 켜짐)
+  // 플래시를 켰을 때 1초마다 줄어드는 양(%) (5 → 100%에서 약 20초 동안 켜짐)
   FLASH_DRAIN: 5,
   // 동작 센서 신호가 이 시간(밀리초) 안에 오지 않으면 손가락 모드로 바꿔요
   SENSOR_WAIT_MS: 2000
@@ -482,8 +370,7 @@ const $ = id => document.getElementById(id);
 
 /* ---------------- 상태 ---------------- */
 const S = {
-  screen: "start",     // start | lab | result
-  stage: 1,            // 1 | 2
+  screen: "start",     // start | lab
   mode: "waiting",     // waiting | sensor | touch
   p: P_MAX, v: 0,      // 자석 위치, 빠르기
   shown: 0,            // 화면에 보이는 전류 세기 (0~1)
@@ -528,21 +415,11 @@ document.querySelectorAll("[data-key]").forEach(el => {
 });
 
 /* ---------------- 화면 바꾸기 ---------------- */
-function show(screen, stage){
+function show(screen){
   S.screen = screen;
-  if (stage) S.stage = stage;
   $("screenStart").classList.toggle("hidden", screen !== "start");
   $("screenLab").classList.toggle("hidden", screen !== "lab");
-  $("screenResult").classList.toggle("hidden", screen !== "result");
-  $("topbar").classList.toggle("hidden", screen === "start");
-  const cur = screen === "result" ? "r" : String(S.stage);
-  document.querySelectorAll(".top .st").forEach(el => el.classList.toggle("cur", el.dataset.st === cur));
-  document.querySelectorAll(".s1only").forEach(el => el.classList.toggle("hidden", S.stage !== 1));
-  document.querySelectorAll(".s2only").forEach(el => el.classList.toggle("hidden", S.stage !== 2));
-  $("ledGroup").classList.toggle("hidden", S.stage !== 1);
-  $("batGroup").classList.toggle("hidden", S.stage !== 2);
-  if (screen !== "lab" || S.stage !== 2) flashOff();
-  if (screen === "result") fillResult();
+  if (screen !== "lab") flashOff();
   if (screen === "lab") wakeLockOn(); else wakeLockOff();
   window.scrollTo(0, 0);
 }
@@ -557,7 +434,7 @@ $("btnStart").addEventListener("click", async () => {
   } else if (typeof DeviceMotionEvent !== "undefined"){
     allowed = true;
   }
-  show("lab", 1);
+  show("lab");
   if (allowed && window.isSecureContext !== false){
     if (S.mode !== "sensor"){
       setMode("waiting");
@@ -698,13 +575,11 @@ function frame(t){
   const moving = S.v !== 0;
   const flowing = S.shown > 0.02;
 
-  // 2단계: 충전과 방전
-  if (S.stage === 2){
-    if (I > 0 && S.battery < 100) S.battery = Math.min(100, S.battery + I * CONFIG.CHARGE_SPEED * dt);
-    if (S.flash === "torch" || S.flash === "screen"){
-      S.battery = Math.max(0, S.battery - CONFIG.FLASH_DRAIN * dt);
-      if (S.battery <= 0){ flashOff(); setMsg("전지가 비었어요. 폰을 흔들어 충전하세요."); }
-    }
+  // 충전과 방전
+  if (I > 0 && S.battery < 100) S.battery = Math.min(100, S.battery + I * CONFIG.CHARGE_SPEED * dt);
+  if (S.flash === "torch" || S.flash === "screen"){
+    S.battery = Math.max(0, S.battery - CONFIG.FLASH_DRAIN * dt);
+    if (S.battery <= 0){ flashOff(); setMsg("전지가 비었어요. 폰을 흔들어 충전하세요."); }
   }
   render(flowing, moving, I > 0);
   requestAnimationFrame(frame);
@@ -716,32 +591,24 @@ function render(flowing, moving, charging){
   $("magPtr").setAttribute("y2", Math.min(470, Math.max(90, S.p)).toFixed(1));
   $("meterFill").style.width = (S.shown * 100).toFixed(1) + "%";
 
-  if (S.stage === 1){
-    const b = Math.pow(S.shown, 0.7);
-    $("ledGlow").setAttribute("opacity", b.toFixed(3));
-    const ledColor = b > 0.02 ? `rgb(${Math.round(210 + 45*b)},${Math.round(40 + 130*b)},${Math.round(40 + 100*b)})` : "";
-    $("ledBody").style.fill = ledColor; $("ledRim").style.fill = ledColor;
-    on("f1a", moving); on("f1x", flowing); on("f1b", flowing); on("f1y", flowing); on("f1c", flowing);
-  } else {
-    const pct = Math.floor(S.battery);
-    $("batLvl").style.width = S.battery.toFixed(1) + "%";
-    $("batLvl").classList.toggle("low", S.battery < 15);
-    $("batPct").textContent = pct + "%";
-    $("ovPct").textContent = "가상 전지 " + pct + "%";
-    $("batFill").setAttribute("height", (S.battery * 0.86).toFixed(1));
-    $("batFill").setAttribute("y", (306 - S.battery * 0.86).toFixed(1));
-    $("batFill").classList.toggle("low", S.battery < 15);
-    const ch = flowing && S.battery < 100;
-    on("f2a", moving); on("f2x", flowing); on("f2b", flowing); on("f2y", ch); on("f2c", ch);
-    const lit = S.flash === "torch" || S.flash === "screen";
-    ["f3a","f3x","f3b","f3y","f3c"].forEach(id => on(id, lit));
-    const kind = $("flashMsg").dataset.kind;
-    if (S.battery >= 100 && charging && kind !== "full" && kind !== "torch") setMsg("가상 전지가 가득 찼어요!", "full");
-    if (S.battery < 100 && kind === "full") setMsg("");
-  }
+  const pct = Math.floor(S.battery);
+  $("batLvl").style.width = S.battery.toFixed(1) + "%";
+  $("batLvl").classList.toggle("low", S.battery < 15);
+  $("batPct").textContent = pct + "%";
+  $("ovPct").textContent = "가상 전지 " + pct + "%";
+  $("batFill").setAttribute("height", (S.battery * 0.86).toFixed(1));
+  $("batFill").setAttribute("y", (306 - S.battery * 0.86).toFixed(1));
+  $("batFill").classList.toggle("low", S.battery < 15);
+  const ch = flowing && S.battery < 100;
+  on("f2a", moving); on("f2x", flowing); on("f2b", flowing); on("f2y", ch); on("f2c", ch);
+  const lit = S.flash === "torch" || S.flash === "screen";
+  ["f3a","f3x","f3b","f3y","f3c"].forEach(id => on(id, lit));
+  const kind = $("flashMsg").dataset.kind;
+  if (S.battery >= 100 && charging && kind !== "full" && kind !== "torch") setMsg("가상 전지가 가득 찼어요!", "full");
+  if (S.battery < 100 && kind === "full") setMsg("");
 }
 
-/* ---------------- 2단계: 플래시 ---------------- */
+/* ---------------- 플래시 ---------------- */
 let camStream = null, camTrack = null, camVideo = null, torchUnsupported = false;
 
 function setMsg(text, kind){
@@ -765,7 +632,7 @@ $("btnFlash").addEventListener("click", async () => {
   setMsg("");
   S.flash = "starting"; setFlashBtn();
   const ok = torchUnsupported ? false : await torchOn();
-  if (S.flash !== "starting"){ stopCamera(); return; }   // 켜는 사이에 다른 화면으로 갔을 때
+  if (S.flash !== "starting"){ stopCamera(); return; }   // 켜는 사이에 화면을 떠났을 때
   if (ok){
     S.flash = "torch";
     setMsg("뒷면 손전등이 켜졌어요. 친구 눈에 비추지 마세요.", "torch");
@@ -830,39 +697,6 @@ async function wakeLockOn(){
     wakeLock.addEventListener("release", () => { wakeLock = null; }); } } catch(_){ wakeLock = null; }
 }
 function wakeLockOff(){ try { if (wakeLock) wakeLock.release(); } catch(_){} wakeLock = null; }
-
-/* ---------------- 단계 이동 ---------------- */
-$("btnToS2").addEventListener("click", () => {
-  const a = (S.answers.q1 || "").trim(), b = (S.answers.q2 || "").trim();
-  if (!a || !b){ $("s1Msg").textContent = "①, ② 질문에 먼저 답을 써 보세요."; return; }
-  $("s1Msg").textContent = "";
-  show("lab", 2); startLoop();
-});
-$("btnToS1").addEventListener("click", () => { show("lab", 1); startLoop(); });
-$("btnToResult").addEventListener("click", () => show("result"));
-$("btnBack").addEventListener("click", () => { show("lab", 2); startLoop(); });
-$("btnRestart").addEventListener("click", () => {
-  if (!confirm("쓴 답이 모두 지워져요. 처음부터 다시 할까요?")) return;
-  S.answers = {}; save();
-  document.querySelectorAll("[data-key]").forEach(el => { el.value = ""; });
-  S.battery = 0; S.p = P_MAX; S.v = 0; S.shown = 0;
-  setMsg(""); $("s1Msg").textContent = "";
-  show("start");
-});
-
-function fillResult(){
-  const put = (id, txt) => {
-    const el = $(id), t = (txt || "").trim();
-    el.textContent = t || "(아직 쓰지 않았어요)";
-    el.classList.toggle("empty", !t);
-  };
-  put("r1", S.answers.q1); put("r2", S.answers.q2); put("r3", S.answers.q3);
-  updateWho();
-  const d = new Date();
-  $("resDate").textContent = `${d.getFullYear()}. ${d.getMonth()+1}. ${d.getDate()}.`;
-}
-function updateWho(){ $("resWho").textContent = (S.answers.who || "").trim() || "번호와 이름을 써 주세요"; }
-$("who").addEventListener("input", updateWho);
 
 load();
 show("start");
