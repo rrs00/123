@@ -353,8 +353,8 @@ const CONFIG = {
   FINGER_FULL_SPEED: 1200,
   // 충전 빠르기 (열심히 흔들면 약 30초에 100%가 되도록 맞춘 값. 크면 빨리 참)
   CHARGE_SPEED: 11,
-  // 플래시를 켰을 때 1초마다 줄어드는 양(%) (5 → 100%에서 약 20초 동안 켜짐)
-  FLASH_DRAIN: 5,
+  // 플래시를 켰을 때 1초마다 줄어드는 양(%) (3.75 → 100%에서 약 27초 동안 켜짐)
+  FLASH_DRAIN: 3.75,
   // 동작 센서 신호가 이 시간(밀리초) 안에 오지 않으면 손가락 모드로 바꿔요
   SENSOR_WAIT_MS: 2000
 };
@@ -648,23 +648,52 @@ $("btnFlashOff").addEventListener("click", () => { flashOff(); setMsg(""); });
 /* 뒷면 카메라의 손전등(torch) 켜기. 영상은 화면에 보여 주지도, 저장하지도 않아요. */
 async function torchOn(){
   if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) return false;
+  // 1) 기본 뒷면 카메라로 먼저 시도해요. (카메라 권한 창도 이때 한 번 떠요)
+  const first = await tryTorch({ facingMode: { ideal: "environment" } });
+  if (first === true) return true;
+  if (first === "denied") return false;
+  // 2) 갤럭시처럼 뒷면 카메라가 여러 개인 폰은 손전등이 메인 카메라에만 붙어 있어요.
+  //    권한을 받은 뒤에는 카메라 이름이 보이니, 뒷면 카메라를 하나씩 열어 손전등이 켜지는 것을 찾아요.
+  let cams = [];
+  try { cams = (await navigator.mediaDevices.enumerateDevices()).filter(d => d.kind === "videoinput" && d.deviceId); } catch(_){}
+  const back = cams.filter(d => /back|rear|environment|후면/i.test(d.label));
+  const list = (back.length ? back : cams)
+    .filter(d => d.deviceId !== first)                       // 1)에서 이미 시도한 카메라는 건너뛰어요
+    .sort((a, b) => a.label.localeCompare(b.label, "en", { numeric: true })); // "camera2 0"(메인)부터
+  for (const d of list){
+    if (S.flash !== "starting") return false;                 // 찾는 사이에 끄거나 화면을 떠났을 때
+    await new Promise(r => setTimeout(r, 200));               // 앞 카메라가 완전히 닫힐 시간
+    if (await tryTorch({ deviceId: { exact: d.deviceId } }) === true) return true;
+  }
+  return false;
+}
+/* 카메라 하나를 열어 손전등을 켜 봐요.
+   켜지면 true, 권한 거부면 "denied", 아니면 그 카메라의 deviceId(다음에 건너뛰려고)를 돌려줘요. */
+async function tryTorch(video){
+  stopCamera();
+  let id = "";
   try {
-    camStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: { ideal: "environment" } }, audio: false });
+    camStream = await navigator.mediaDevices.getUserMedia({ video, audio: false });
     camTrack = camStream.getVideoTracks()[0];
-    if (!camTrack){ stopCamera(); return false; }
+    if (!camTrack) throw 0;
+    id = (camTrack.getSettings && camTrack.getSettings().deviceId) || "";
     // 일부 폰은 카메라가 실제로 돌아가야 손전등을 켤 수 있어서, 화면에 붙이지 않은 video에 연결만 해요.
     camVideo = document.createElement("video");
     camVideo.muted = true; camVideo.playsInline = true; camVideo.setAttribute("playsinline", "");
     camVideo.srcObject = camStream;
-    try { await Promise.race([camVideo.play(), new Promise(r => setTimeout(r, 800))]); } catch(_){}
+    try { await Promise.race([camVideo.play(), new Promise(r => setTimeout(r, 1500))]); } catch(_){}
+    // 일부 안드로이드 폰은 사진 기능을 한 번 물어봐야 손전등 기능이 보여요.
+    if (window.ImageCapture){ try { await new ImageCapture(camTrack).getPhotoCapabilities(); } catch(_){} }
     const caps = camTrack.getCapabilities ? camTrack.getCapabilities() : {};
-    if (!caps || !caps.torch){ stopCamera(); return false; }
-    await camTrack.applyConstraints({ advanced: [{ torch: true }] });
-    return true;
+    if (caps && caps.torch){
+      await camTrack.applyConstraints({ advanced: [{ torch: true }] });
+      return true;
+    }
   } catch(e){
-    stopCamera();
-    return false;
+    if (e && (e.name === "NotAllowedError" || e.name === "SecurityError")){ stopCamera(); return "denied"; }
   }
+  stopCamera();
+  return id;
 }
 function stopCamera(){
   try { if (camTrack && camTrack.applyConstraints) camTrack.applyConstraints({ advanced: [{ torch: false }] }).catch(()=>{}); } catch(_){}
